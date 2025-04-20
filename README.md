@@ -55,21 +55,63 @@ python advanced_tic_tac_toe.py
     * Play Again: Restarts the game.
     * Main Menu: Returns to the main screen.
 
-## 🤖 Future Improvements: AI Agent Integration
 
-To make the game even more exciting, a future version could include an **AI agent opponent**. This agent could analyze the board and make moves using reasoning and strategy. Here are a few ideas for implementing it:
+## 🎮 Advanced Tic Tac Toe - With AI Support (CrewAI + Ollama)
 
-### 🔧 LLM-Powered Agent (with CrewAI or AutoGen)
+This is a feature-rich version of Tic Tac Toe including:
+- Player vs Player mode
+- Player vs AI mode with LLM-based decision-making
+- Unique gameplay: each player is limited to 3 pieces on the board
 
-- Integrate an intelligent agent using frameworks like [**CrewAI**](https://github.com/joaomdmoura/crewai) or [**AutoGen**](https://github.com/microsoft/autogen).
-- These frameworks allow LLM-backed agents to take actions in a structured environment.
-- The agent would receive the current board state and respond with the best move based on its reasoning.
-- Great for simulating a conversational or "thinking" opponent.
+### 📦 Requirements:
+- Python
+- Pygame
+- CrewAI
+- LangChain
+- Ollama running locally with a compatible model (e.g., llama3)
 
-### 🧠 How it Might Work
-- The game engine sends the board (as a string or JSON) to the agent.
-- The agent interprets the state and returns a move (e.g., row and column).
-- The agent could optionally explain its thinking process to the player.
+### 🧠 AI Integration:
+The AI opponent uses the CrewAI framework to analyze the current board and suggest the optimal move.
+You need to have Ollama running locally with the model pulled to use AI mode.
+
+### 🔧 Setup Instructions:
+1. Install Python dependencies:
+```bash
+   pip install -r requirements.txt
+```
+
+2. Install Ollama (macOS/Linux/Windows):
+   https://ollama.com/download
+
+3. Pull the LLM model (we use llama3 in this script):
+```bash
+   ollama pull llama3.2
+```
+    Or you can modify the `MODEL` variable if using another supported model:
+    MODEL = "llama3"  # or "mistral" / "gemma" etc.
+
+4. Run Ollama server in background:
+```bash
+   ollama run llama3.2
+```
+
+5. Run the game:
+```bash
+   python tic_tac_toe_ai.py
+```
+
+
+### 💡 Tip:
+- If Ollama is not running or the model isn't found, the game will automatically fall back to a basic rule-based AI opponent.
+- The AI can only play as "O" and goes second.
+- When playing AI mode, it thinks in real-time and returns its move based on current game state.
+
+### 🔍 LLM-Based Agent Logic (CrewAI):
+- Takes the board state as input
+- Uses reasoning to pick the best move: win, block, center, corners, etc.
+- Response format: JSON like { "row": 1, "col": 2 }
+
+Enjoy the game!
 
 ## Author
 Developed with ❤️ by [Ali FAHS](https://github.com/fahsAli)

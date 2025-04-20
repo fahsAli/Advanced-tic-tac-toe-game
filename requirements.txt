@@ -1,1 +1,4 @@
 pygame
+crewai 
+langchain 
+ollama
