@@ -5,10 +5,11 @@ import re
 from collections import deque
 from crewai import Crew, Agent, Task
 from langchain.llms import Ollama
+import os
 
 pygame.init()
 
-MODEL="llama3.2"
+KEY="OPENAI_API_KEY"
 WIDTH, HEIGHT = 600, 600
 LINE_WIDTH = 15
 BOARD_ROWS, BOARD_COLS = 3, 3
@@ -31,6 +32,7 @@ TEXT_COLOR = (255, 255, 255)
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption('Advanced Tic Tac Toe')
+os.environ["OPENAI_API_KEY"] = KEY
 
 board = [[None for _ in range(BOARD_COLS)] for _ in range(BOARD_ROWS)]
 x_positions = deque()  
@@ -41,16 +43,14 @@ winner = None
 game_state = "menu"
 ai_mode = False  
 
-try:
-    llm = Ollama(model=MODEL)
-    
+try:    
     ai_agent = Agent(
         role="Tic Tac Toe Strategist",
         goal="Win or block the opponent using optimal strategy",
         backstory="You're a master of Tic Tac Toe trained to think logically about each move.",
         verbose=True,
         allow_delegation=False,
-        llm=llm
+        llm="gpt-4o-mini",
     )
     ai_available = True
 except Exception as e:
@@ -188,19 +188,29 @@ def reset_game():
 
 def get_ai_move():
     board_string = "\n".join([" ".join(["_" if not c else c for c in row]) for row in board])
+    print("Current board state sent to AI:")
+    print(board_string)
     instructions = f"""
-Here is the current Tic Tac Toe board:
+Here is the current Tic Tac Toe board (X, O, or _ for empty):
 {board_string}
 
 You are 'O'. It's your turn.
 
-Important: This is a special Tic Tac Toe variant where each player can only have 3 pieces on the board at once.
-When a player places a 4th piece, their oldest piece is removed.
+Important rules:
+1. This is a special Tic Tac Toe variant where each player can only have 3 pieces on the board at once.
+2. When a player places a 4th piece, their oldest piece is removed.
+3. You MUST choose an EMPTY space (marked with _).
+4. Do NOT choose spaces that already contain X or O.
 
+Your task:
 - Return the best move as JSON: {{ "row": <0-2>, "col": <0-2> }}
 - Only return the JSON. No extra explanation.
 - If you see a winning move, take it.
-- Otherwise, block the opponent or take the center or a corner.
+- If you can't win immediately, block the opponent's winning move.
+- If neither is possible, prefer the center, then corners, then edges.
+- Always check that your chosen space is empty before returning.
+
+Remember: Only select positions marked with _ in the board representation.
 """
 
     task = Task(
@@ -216,7 +226,8 @@ When a player places a 4th piece, their oldest piece is removed.
     )
 
     try:
-        result = crew.kickoff()
+        crew_result = crew.kickoff()
+        result = str(crew_result)
         print("[AI OUTPUT]:", result)
 
         match = re.search(r'\{.*?\}', result)
